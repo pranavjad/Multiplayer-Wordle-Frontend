@@ -1,16 +1,22 @@
 import {useEffect,useState} from 'react'
 
-function ScoreBoard() {
-    const [score,setScore] = useState({
-        player1: 0,
-        player2: 0,
-    })
+function ScoreBoard({scoreBoard}) {
+    // const [score,setScore] = useState([
+    //    ['John',0],
+    //    ['Greg',0],
+    // ])
+    /*
+    [
+        [username1, 0],
+        [username2, 0]
+    ]
+    */
     return (
         <div className="scoreBoard">
             <h3> Score </h3>
             {
-                Object.keys(score).map((user,idx) => {
-                    return <div key={`scoreboard${idx}`}>{user} - {score[user]}</div>
+                scoreBoard.map((s,idx) => {
+                    return <div key={`scoreboard${idx}`}>{s[0]} - {s[1]}</div>
                 })
             }
         </div>

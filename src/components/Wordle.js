@@ -4,7 +4,7 @@ import WordRow from './WordRow'
 import ScoreBoard from './ScoreBoard'
 import WordInput from './WordInput'
 import checkGuess from '../utils/word-utils'
-import {SocketContext} from '../contexts/socket'
+// import {SocketContext} from '../contexts/socket'
 
 function isLetter(str) {
     return str.length === 1 && str.match(/[a-z]/i);
@@ -17,7 +17,7 @@ function checkWin(colorArray){
     return true;
 }
 function Wordle() {
-    const socket = useContext(SocketContext);
+    // const socket = useContext(SocketContext);
     const [guess,setGuess] = useState('');
     const [guesses,setGuesses] = useState([
         '',
@@ -38,6 +38,10 @@ function Wordle() {
         ['white','white','white','white','white'],
     ])
     const [answer,setAnswer] = useState('crane');
+    const [scoreBoard,setScoreBoard] = useState([
+      ['Alice', 0],
+      ['Bob', 1]
+    ]);
     // handle a key press
     const onKeyDown = (e) => {
       if(!guessing) return;
@@ -79,11 +83,16 @@ function Wordle() {
     // register keypress event listener
     useEffect(() => {
       document.addEventListener('keydown', onKeyDown);
+      // socket.on('scoreboard-update', newScoreBoard => {
+      //   console.log(newScoreBoard);
+      //   setScoreBoard(newScoreBoard);
+      // });
       return () => {
         document.removeEventListener('keydown',onKeyDown);
       }
     });
 
+    
     return (
     <div>
         <h1>Wordle</h1>
@@ -95,7 +104,7 @@ function Wordle() {
                 return <WordRow key={`${idx}wordrow`} letters={g} letterState={tileColors[idx]}/>
             })
         }
-        <ScoreBoard />
+        <ScoreBoard scoreBoard={scoreBoard} />
         <WordInput disabled={guessing} />
     </div>
   )
