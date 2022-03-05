@@ -1,6 +1,7 @@
-import {useEffect,useState} from 'react'
+import {useEffect, useState, useContext} from 'react'
+import {SocketContext} from '../contexts/socket'
 
-function ScoreBoard({scoreBoard}) {
+function ScoreBoard({scoreBoard, users, master}) {
     // const [score,setScore] = useState([
     //    ['John',0],
     //    ['Greg',0],
@@ -11,12 +12,22 @@ function ScoreBoard({scoreBoard}) {
         [username2, 0]
     ]
     */
+    const socket = useContext(SocketContext);
+    
     return (
         <div className="scoreBoard">
             <h3> Score </h3>
             {
-                scoreBoard.map((s,idx) => {
-                    return <div key={`scoreboard${idx}`}>{s[0]} - {s[1]}</div>
+                Object.keys(scoreBoard).map((socket_id,idx) => {
+                    
+                    return <div 
+                        key={`scoreboard${idx}`} 
+                        style={{ 
+                            fontWeight:(socket_id === socket.id)?'bold':'normal' 
+                        }}
+                    >
+                        {users[socket_id]} - {scoreBoard[socket_id]} {(socket_id === master) && '✏️'}
+                    </div>
                 })
             }
         </div>
