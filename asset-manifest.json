@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Multiplayer-Wordle-Frontend/static/css/main.3cd37d09.css",
-    "main.js": "/Multiplayer-Wordle-Frontend/static/js/main.0e4deda7.js",
+    "main.js": "/Multiplayer-Wordle-Frontend/static/js/main.e1dd6d92.js",
     "index.html": "/Multiplayer-Wordle-Frontend/index.html",
     "main.3cd37d09.css.map": "/Multiplayer-Wordle-Frontend/static/css/main.3cd37d09.css.map",
-    "main.0e4deda7.js.map": "/Multiplayer-Wordle-Frontend/static/js/main.0e4deda7.js.map"
+    "main.e1dd6d92.js.map": "/Multiplayer-Wordle-Frontend/static/js/main.e1dd6d92.js.map"
   },
   "entrypoints": [
     "static/css/main.3cd37d09.css",
-    "static/js/main.0e4deda7.js"
+    "static/js/main.e1dd6d92.js"
   ]
 }
