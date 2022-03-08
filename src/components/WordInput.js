@@ -22,7 +22,7 @@ function WordInput({master, inGame, scoreBoard}) {
             <form onSubmit={handleSubmit}>
                 <label>
                     <h3>Secret Word: <span>{value}</span></h3>
-                    <input type="text" value={value} onChange={handleChange} disabled={!isMaster || inGame || Object.keys(scoreBoard).length===1} maxLength={5} minLength={5} pattern="[A-Za-z]*"/>
+                    <input type="text" value={value} onChange={handleChange} disabled={!isMaster || inGame || Object.keys(scoreBoard).length===1} maxLength={5} minLength={5} pattern="[A-Za-z]*" required/>
                 </label>
                 <input type="submit" value="Enter" disabled={!isMaster || inGame || Object.keys(scoreBoard).length===1} className="submitButton" />
             </form>

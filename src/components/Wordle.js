@@ -141,6 +141,9 @@ function Wordle() {
       if(!inGame) {
         return <h3>Waiting for next round to start ...</h3>
       }
+      if(inGame) {
+        return <h3>Start Guessing!</h3>
+      }
     }
     return (
     <div>
