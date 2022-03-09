@@ -38,13 +38,16 @@ function Wordle() {
         ['white','white','white','white','white'],
     ])
     const [answer,setAnswer] = useState('crane');
-    const [scoreBoard,setScoreBoard] = useState({});
-    const [users,setUsers] = useState({});
-    const [master,setMaster] = useState('');
+    // const [scoreBoard,setScoreBoard] = useState({});
+    const [playerList,setPlayerList] = useState([]);
+    // const [users,setUsers] = useState({});
+    const [playerMap,setPlayerMap] = useState({});
+    const [master,setMaster] = useState({});
     const [inGame,setInGame] = useState(false);
+    const [imMaster,setImMaster] = useState(false);
     // handle a key press
     const onKeyDown = (e) => {
-      if(!inGame || (socket.id === master) || curRow > 5) return;
+      if(!inGame || imMaster || curRow > 5) return;
       const letter = e.key;
       // submitted guess
       if(guess.length === 5 && letter === 'Enter') {
@@ -87,21 +90,57 @@ function Wordle() {
     // register keypress event listener
     useEffect(() => {
       document.addEventListener('keydown', onKeyDown);
-      // socket.on('scoreboard-update', newScoreBoard => {
-      //   console.log(newScoreBoard);
-      //   setScoreBoard(newScoreBoard);
-      // });
       return () => {
         document.removeEventListener('keydown',onKeyDown);
       }
     });
+    // Handle socket stuff
     useEffect(() => {
-      socket.on('scoreboard-update', (payload) => {
-        setScoreBoard(payload.scoreBoard);
-        setUsers(payload.users);
-        setMaster(payload.master);
+      socket.on('room-data', data => {
+        console.log("room data:")
+        console.log(data);
+        setPlayerList(data.playerList);
+        setPlayerMap(data.playerMap);
+        setMaster(data.master);
       });
-      socket.on('game-over' ,() => {
+      socket.on('scoreboard-update', data => {
+        console.log("receieved scoreboard update", data);
+        console.log(playerList);
+        setPlayerList(curPlayerList => {
+          let res = curPlayerList.slice();
+          console.log(res);
+          res[res.findIndex(e => e.socketid === data.scorer)].score += 1;
+          return res;
+        });
+      });
+      socket.on('new-player', data => {
+        console.log(`new player ${data.username} joined`);
+        setPlayerMap(curPlayerMap => {
+          curPlayerMap[data.socketid] = data;
+          return curPlayerMap;
+        });
+        setPlayerList(curPlayerList => [...curPlayerList, data]);
+      });
+      socket.on('new-master', data => {
+        setMaster(data);
+        if(data.socketid === socket.id){
+          setImMaster(true);
+        }
+        else {
+          setImMaster(false);
+        }
+      });
+      socket.on('player-left', data => {
+        setPlayerMap(curPlayerMap => {
+          delete curPlayerMap[data.socketid];
+          return curPlayerMap;
+        });
+        setPlayerList(curPlayerList => {
+          curPlayerList = curPlayerList.filter(player => player.socketid !== data.socketid);
+          return curPlayerList;
+        });
+      });
+      socket.on('game-over' , () => {
         setInGame(false);
       });
       socket.on('game-start', (newAnswer) => {
@@ -132,18 +171,22 @@ function Wordle() {
       ]);
     }
     const renderStatus = () => {
-      if(Object.keys(scoreBoard).length === 1){
+      if(playerList.length === 1){
         return <h3> Waiting for more players... </h3>
       }
-      if(master === socket.id) {
+      if(imMaster) {
         return <h3> Your turn to create the word! </h3>
       }
       if(!inGame) {
-        return <h3>Waiting for next round to start ...</h3>
+        return <h3>Waiting for next round ...</h3>
       }
       if(inGame) {
         return <h3>Start Guessing!</h3>
       }
+    }
+    const renderScoreBoard = () => {
+      if(playerList.length === 0) return;
+      return <ScoreBoard playerList={playerList} master={master} />;
     }
     return (
     <div>
@@ -153,7 +196,7 @@ function Wordle() {
                 if(idx == curRow){
                     return <WordRow key={`${idx}wordrow`}  letters={guess} letterState={tileColors[idx]}/>
                 }
-                return <WordRow key={`${idx}wordrow`} letters={g} letterState={tileColors[idx]}/>
+                return <WordRow key={`${idx}wordrow`} letters={guesses[idx]} letterState={tileColors[idx]}/>
             })
         }
         <div className="gameStatus">
@@ -161,8 +204,8 @@ function Wordle() {
             renderStatus()
           }
         </div>
-        <ScoreBoard scoreBoard={scoreBoard} users={users} master={master} />
-        <WordInput master={master}  inGame={inGame} scoreBoard={scoreBoard} />
+        {renderScoreBoard()}
+        <WordInput imMaster={imMaster}  inGame={inGame} playerList={playerList} />
     </div>
   )
 }

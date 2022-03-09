@@ -1,32 +1,22 @@
 import {useEffect, useState, useContext} from 'react'
 import {SocketContext} from '../contexts/socket'
 
-function ScoreBoard({scoreBoard, users, master}) {
-    // const [score,setScore] = useState([
-    //    ['John',0],
-    //    ['Greg',0],
-    // ])
-    /*
-    [
-        [username1, 0],
-        [username2, 0]
-    ]
-    */
+function ScoreBoard({playerList, master}) {
     const socket = useContext(SocketContext);
     
     return (
         <div className="scoreBoard">
             <h3> Score </h3>
             {
-                Object.keys(scoreBoard).map((socket_id,idx) => {
-                    
+                playerList.map((player, idx) => {
+                    console.log(playerList);
                     return <div 
                         key={`scoreboard${idx}`} 
                         style={{ 
-                            fontWeight:(socket_id === socket.id)?'bold':'normal' 
+                            fontWeight:(player.socketid === socket.id)?'bold':'normal' 
                         }}
                     >
-                        {users[socket_id]} - {scoreBoard[socket_id]} {(socket_id === master) && '✏️'}
+                        {player.username} - {player.score} {(master && player.socketid === master.socketid) && '✏️'}
                     </div>
                 })
             }
