@@ -5,16 +5,24 @@ import ScoreBoard from './ScoreBoard'
 import WordInput from './WordInput'
 import checkGuess from '../utils/word-utils'
 import {SocketContext} from '../contexts/socket'
-
+import KeyBoard from './KeyBoard'
+const MAX_GUESSES = 5;
 function isLetter(str) {
     return str.length === 1 && str.match(/[a-z]/i);
 }
 
 function checkWin(colorArray){
     for(let color of colorArray){
-        if(color != 'green') return false;
+        if(color !== 'green') return false;
     }
     return true;
+}
+function getDefaultLetterState() {
+  let res = {};
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(l => {
+    res[l] = 'lightgray';
+  });
+  return res;
 }
 function Wordle() {
     const socket = useContext(SocketContext);
@@ -41,17 +49,30 @@ function Wordle() {
     // const [scoreBoard,setScoreBoard] = useState({});
     const [playerList,setPlayerList] = useState([]);
     // const [users,setUsers] = useState({});
-    const [playerMap,setPlayerMap] = useState({});
+    // const [playerMap,setPlayerMap] = useState({});
     const [master,setMaster] = useState({});
     const [inGame,setInGame] = useState(false);
     const [imMaster,setImMaster] = useState(false);
+    const [letterState, setLetterState] = useState(getDefaultLetterState());
     // handle a key press
     const onKeyDown = (e) => {
-      if(!inGame || imMaster || curRow > 5) return;
+      if(!inGame || imMaster || curRow > MAX_GUESSES) return;
       const letter = e.key;
       // submitted guess
-      if(guess.length === 5 && letter === 'Enter') {
+      if(guess.length === MAX_GUESSES && letter === 'Enter') {
+
           const clues = checkGuess(guess,answer);
+          
+          setLetterState(curLetterState => {
+            let newLetterState = Object.assign({}, curLetterState);
+            let upperCaseGuess = guess.toUpperCase();
+            clues.map((clue,idx) => {
+              if(clue === 'green') newLetterState[upperCaseGuess[idx]] = 'green';
+              else if(clue === 'yellow' && newLetterState[upperCaseGuess[idx]] !== 'green') newLetterState[upperCaseGuess[idx]] = 'yellow';
+              else if(clue === 'gray' && newLetterState[upperCaseGuess[idx]] === 'lightgray') newLetterState[upperCaseGuess[idx]] = 'gray';
+            });
+            return newLetterState;
+          })
           setGuesses(prevGuesses => {
               prevGuesses[curRow] = guess;
               return prevGuesses;
@@ -63,23 +84,23 @@ function Wordle() {
           });
           // check for win
           if(checkWin(clues)){
-            alert('Won');
+            // alert('Won');
             setInGame(false);
             // setSolved(true);
             socket.emit('wordle-solved',1);
           }
-          if(curRow === 5){
-            alert('Game Over');
+          if(curRow === MAX_GUESSES){
+            // alert('Game Over');
             socket.emit('wordle-solved',0);
             // return;
           }
           setCurRow(curRow + 1);
       }
       setGuess(curGuess => {
-        if(letter === 'Backspace' && curGuess.length != 0){
+        if(letter === 'Backspace' && curGuess.length !== 0){
             return curGuess.slice(0,-1);
         }
-        if(curGuess.length === 5 || !isLetter(letter)) return curGuess;
+        if(curGuess.length === MAX_GUESSES || !isLetter(letter)) return curGuess;
         
         return curGuess + letter;
         
@@ -100,26 +121,32 @@ function Wordle() {
         console.log("room data:")
         console.log(data);
         setPlayerList(data.playerList);
-        setPlayerMap(data.playerMap);
+        // setPlayerMap(data.playerMap);
         setMaster(data.master);
       });
       socket.on('scoreboard-update', data => {
         console.log("receieved scoreboard update", data);
         console.log(playerList);
         setPlayerList(curPlayerList => {
-          let res = curPlayerList.slice();
-          console.log(res);
-          res[res.findIndex(e => e.socketid === data.scorer)].score += 1;
+          let res = JSON.parse(JSON.stringify(curPlayerList));
+          // console.log(res);
+          let scorerIndex = res.findIndex(e => e.socketid === data.scorer);
+          res[scorerIndex].score += data.point;
+          res[scorerIndex].inGame = false;
           return res;
         });
       });
       socket.on('new-player', data => {
         console.log(`new player ${data.username} joined`);
-        setPlayerMap(curPlayerMap => {
-          curPlayerMap[data.socketid] = data;
-          return curPlayerMap;
+        // setPlayerMap(curPlayerMap => {
+        //   curPlayerMap[data.socketid] = data;
+        //   return curPlayerMap;
+        // });
+        setPlayerList(curPlayerList => {
+          let newPlayerList = JSON.parse(JSON.stringify(curPlayerList));
+          newPlayerList.push(data);
+          return newPlayerList;
         });
-        setPlayerList(curPlayerList => [...curPlayerList, data]);
       });
       socket.on('new-master', data => {
         setMaster(data);
@@ -131,13 +158,14 @@ function Wordle() {
         }
       });
       socket.on('player-left', data => {
-        setPlayerMap(curPlayerMap => {
-          delete curPlayerMap[data.socketid];
-          return curPlayerMap;
-        });
+        // setPlayerMap(curPlayerMap => {
+        //   delete curPlayerMap[data.socketid];
+        //   return curPlayerMap;
+        // });
         setPlayerList(curPlayerList => {
-          curPlayerList = curPlayerList.filter(player => player.socketid !== data.socketid);
-          return curPlayerList;
+          let newPlayerList = JSON.parse(JSON.stringify(curPlayerList));
+          newPlayerList = newPlayerList.filter(player => player.socketid !== data.socketid);
+          return newPlayerList;
         });
       });
       socket.on('game-over' , () => {
@@ -148,7 +176,7 @@ function Wordle() {
         setInGame(true);
         resetBoard();
       });
-    },[socket]);
+    },[]);
 
     const resetBoard = () => {
       setGuess('');
@@ -169,6 +197,7 @@ function Wordle() {
         '',
         '',
       ]);
+      setLetterState(getDefaultLetterState());
     }
     const renderStatus = () => {
       if(playerList.length === 1){
@@ -193,7 +222,7 @@ function Wordle() {
         <h1>Multiplayer Wordle</h1>
         {
             guesses.map((g,idx) => {
-                if(idx == curRow){
+                if(idx === curRow){
                     return <WordRow key={`${idx}wordrow`}  letters={guess} letterState={tileColors[idx]}/>
                 }
                 return <WordRow key={`${idx}wordrow`} letters={guesses[idx]} letterState={tileColors[idx]}/>
@@ -205,7 +234,8 @@ function Wordle() {
           }
         </div>
         {renderScoreBoard()}
-        <WordInput imMaster={imMaster}  inGame={inGame} playerList={playerList} />
+        <WordInput imMaster={imMaster}  inGame={inGame} playerList={playerList}  />
+        <KeyBoard letterState={letterState} />
     </div>
   )
 }

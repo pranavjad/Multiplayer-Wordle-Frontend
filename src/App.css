@@ -52,15 +52,39 @@ h1 {
   background-color: red;
 }
 
-.wordInput {
+.wordInputContainer {
   margin: 20px;
   position: absolute;
   bottom: 0px;
   left: 0px;
+  /* border: 1px solid black; */
 }
-.wordInput input {
+.wordInputContainer input {
   padding: 10px;
 }
+.wordInputRow {
+  display: flex;
+  flex-direction: row;
+  /* border: 1px solid red; */
+}
+
+.wordInputField {
+  position: relative;
+  /* border: 1px solid purple; */
+}
+
+
+
+.iconButton {
+  background-color: transparent;
+  margin-left: 10px;
+  position: absolute;
+  right: 0;
+  border: none;
+  height: 100%;
+  /* border: 1px solid red; */
+}
+
 .submitButton {
   margin-left: 10px;
   background-color: white;
@@ -76,11 +100,41 @@ h1 {
 .submitButton:active:enabled {
   background-color: lightgrey;
 }
-.wordInput span {
+.wordInputContainer span {
   text-transform: uppercase;
 }
 
 .gameStatus {
   text-align: center;
   color:blue;
+}
+
+
+.keyboardContainer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 20px;
+}
+
+.keyboardRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto 8px;
+}
+
+.keyboardRow div {
+  display: flex;
+  background-color: #d3d6da;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  padding: 10px;
+  margin: 0px 6px 0px 0px;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
 }

@@ -3,13 +3,15 @@ import {SocketContext} from '../contexts/socket'
 
 function ScoreBoard({playerList, master}) {
     const socket = useContext(SocketContext);
-    
+    let sortedPlayerList = JSON.parse(JSON.stringify(playerList));
+    sortedPlayerList.sort((a, b) => b.score - a.score);
     return (
         <div className="scoreBoard">
             <h3> Score </h3>
             {
-                playerList.map((player, idx) => {
-                    console.log(playerList);
+                sortedPlayerList.map((player, idx) => {
+                    // console.log("scoreboard rendering");
+                    // console.log(playerList);
                     return <div 
                         key={`scoreboard${idx}`} 
                         style={{ 
