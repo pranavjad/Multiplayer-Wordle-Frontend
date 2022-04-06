@@ -6,6 +6,8 @@ import WordInput from './WordInput'
 import checkGuess from '../utils/word-utils'
 import {SocketContext} from '../contexts/socket'
 import KeyBoard from './KeyBoard'
+import { AuthContext } from '../contexts/auth'
+import { Navigate } from 'react-router-dom'
 const MAX_GUESSES = 5;
 function isLetter(str) {
     return str.length === 1 && str.match(/[a-z]/i);
@@ -54,6 +56,7 @@ function Wordle() {
     const [inGame,setInGame] = useState(false);
     const [imMaster,setImMaster] = useState(false);
     const [letterState, setLetterState] = useState(getDefaultLetterState());
+    const auth = useContext(AuthContext);
     // handle a key press
     const onKeyDown = (e) => {
       if(!inGame || imMaster || curRow > MAX_GUESSES) return;
@@ -117,7 +120,7 @@ function Wordle() {
     });
     // Handle socket stuff
     useEffect(() => {
-      socket.on('room-data', data => {
+      socket.emit('req-room-data', data => {
         console.log("room data:")
         console.log(data);
         setPlayerList(data.playerList);
@@ -216,6 +219,11 @@ function Wordle() {
     const renderScoreBoard = () => {
       if(playerList.length === 0) return;
       return <ScoreBoard playerList={playerList} master={master} />;
+    }
+    if(!auth.signedIn) {
+      return (
+        <Navigate to="/" replace={true} />
+      )
     }
     return (
     <div>

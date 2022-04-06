@@ -138,3 +138,82 @@ h1 {
   align-items: center;
   justify-content: center;
 }
+.WelcomeScreen {
+  padding: 10px;
+}
+.WelcomeScreen form {
+  display: flex;
+  /* flex-direction:  column; */
+  justify-content: center;
+  margin-top: 50px;
+}
+.WelcomeScreen input {
+  font-size: large;
+  padding: 10px;
+  font-weight: bold;
+  width: auto;
+  text-align: center;
+}
+
+.WelcomeScreen .Title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  /* border: 1px solid purple; */
+}
+.WelcomeScreenActions {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin: auto;
+}
+
+.WelcomeScreenActions button {
+  padding: 10px;
+  margin-top: 10px;
+  width: auto;
+  background-color: white;
+  border: 3px solid #d3d6da;
+  font-weight: bold;
+  /* text-transform: capitalize; */
+}
+
+/* .WelcomeScreenActions button:hover {
+  background-color: whitesmoke;
+} */
+
+.WordleText {
+  display: flex;
+  flex-direction: row;
+  /* border: 1px solid red; */
+  width: fit-content;
+}
+
+.WordleText div {
+  text-align: center;
+  border: 3px solid #d3d6da;
+  padding: 10px;
+  margin: 2px;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+#findGame:hover {
+  background-color: #6aaa64;
+  color: white;
+  border: 3px solid #6aaa64;
+}
+
+#joinGame:hover {
+  background-color: #c9b458;
+  color: white;
+  border: 3px solid #c9b458;
+}
+
+#createGame:hover {
+  background-color: #787c7e;
+  color: white;
+  border: 3px solid #787c7e;
+}
