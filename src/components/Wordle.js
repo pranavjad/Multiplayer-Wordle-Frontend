@@ -120,6 +120,13 @@ function Wordle() {
     });
     // Handle socket stuff
     useEffect(() => {
+      socket.on('room-data', data => {
+        console.log("room data:")
+        console.log(data);
+        setPlayerList(data.playerList);
+        // setPlayerMap(data.playerMap);
+        setMaster(data.master);
+      });
       socket.emit('req-room-data', data => {
         console.log("room data:")
         console.log(data);
